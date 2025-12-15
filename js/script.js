@@ -1,6 +1,6 @@
-import { getDatabase, ref, push, set, get, update, remove, onValue, query, orderByChild, equalTo } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-database.js";
-import { app, logout } from "./auth.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+import { get, getDatabase, onValue, push, ref, remove, set, update } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-database.js";
+import { app } from "./auth.js";
 
 // Initialize Realtime Database
 const db = getDatabase(app);
@@ -449,10 +449,10 @@ if (logoutBtn) {
       type: "logout",
       title: "Logout",
       message: "Are you sure you want to logout?",
-      confirmText: "Logout",
-      cancelText: "Stay"
+      confirmText: "Yes",
+      cancelText: "Cancel"
     });
-    
+
     if (confirmed) {
       try {
         if (unsubscribe) {

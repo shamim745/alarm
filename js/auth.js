@@ -1,11 +1,11 @@
 // Firebase Authentication Module
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
-import { 
-  getAuth, 
-  signInWithEmailAndPassword,
+import {
   createUserWithEmailAndPassword,
+  getAuth,
   onAuthStateChanged,
-  signOut 
+  signInWithEmailAndPassword,
+  signOut
 } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
 
 // Firebase config
@@ -35,7 +35,6 @@ const isMainPage = currentPage === 'create.html' || currentPage === '';
 // DOM Elements (check if they exist on current page)
 const loadingScreen = document.getElementById("loading-screen");
 const timetablePage = document.getElementById("timetable-page");
-const logoutBtn = document.getElementById("logout-btn");
 const loginForm = document.getElementById("login-form");
 const signupForm = document.getElementById("signup-form");
 const errorMessage = document.getElementById("error-message");
@@ -189,19 +188,6 @@ if (signupForm) {
   });
 }
 
-// Logout functionality
-if (logoutBtn) {
-  logoutBtn.addEventListener("click", async () => {
-    try {
-      await signOut(auth);
-      window.location.href = "index.html";
-    } catch (error) {
-      console.error("Logout error:", error);
-      alert("Logout failed. Please try again.");
-    }
-  });
-}
-
 // Logout function (exported for use in other modules)
 export function logout() {
   return signOut(auth);
@@ -213,5 +199,5 @@ export function getCurrentUser() {
 }
 
 // Export auth instance for use in script.js
-export { auth, app };
+export { app, auth };
 
