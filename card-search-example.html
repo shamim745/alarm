@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Card Search with Pagination Example</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+    }
+    .search-container {
+      margin-bottom: 20px;
+    }
+    input, button {
+      padding: 10px;
+      margin: 5px;
+    }
+    button {
+      cursor: pointer;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    .results {
+      margin-top: 20px;
+    }
+    .card-item {
+      border: 1px solid #ddd;
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 4px;
+    }
+    .pagination {
+      margin-top: 20px;
+      text-align: center;
+    }
+    .pagination button {
+      margin: 0 5px;
+    }
+    .error {
+      color: red;
+      padding: 10px;
+      background: #ffe6e6;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Card Search with Pagination</h1>
+  
+  <div class="search-container">
+    <input type="text" id="search-input" placeholder="Enter search query..." />
+    <input type="number" id="page-input" value="1" min="1" placeholder="Page number" />
+    <input type="number" id="limit-input" placeholder="Results per page (optional)" />
+    <button onclick="performSearch()">Search</button>
+  </div>
+  
+  <div id="error-message"></div>
+  <div id="results" class="results"></div>
+  <div id="pagination" class="pagination"></div>
+
+  <script type="module">
+    import { searchCards } from './js/cardSearch.js';
+    
+    let currentPage = 1;
+    let currentQuery = '';
+    let totalPages = 1;
+    
+    // Make function available globally
+    window.performSearch = async function() {
+      const query = document.getElementById('search-input').value;
+      const page = parseInt(document.getElementById('page-input').value) || 1;
+      const limit = document.getElementById('limit-input').value 
+        ? parseInt(document.getElementById('limit-input').value) 
+        : null;
+      
+      currentPage = page;
+      currentQuery = query;
+      
+      const errorDiv = document.getElementById('error-message');
+      const resultsDiv = document.getElementById('results');
+      const paginationDiv = document.getElementById('pagination');
+      
+      // Clear previous results
+      errorDiv.innerHTML = '';
+      resultsDiv.innerHTML = '<p>Loading...</p>';
+      paginationDiv.innerHTML = '';
+      
+      try {
+        // Call the API with page number
+        const response = await searchCards({
+          query: query,
+          page: page,
+          limit: limit
+          // Add your auth token here if needed:
+          // token: 'your-auth-token'
+        });
+        
+        // Display results
+        if (response.cards && response.cards.length > 0) {
+          let html = '<h2>Search Results:</h2>';
+          response.cards.forEach(card => {
+            html += `
+              <div class="card-item">
+                <h3>${card.name || 'Unknown Card'}</h3>
+                <p>${JSON.stringify(card, null, 2)}</p>
+              </div>
+            `;
+          });
+          resultsDiv.innerHTML = html;
+          
+          // Display pagination info
+          if (response.pagination) {
+            totalPages = response.pagination.totalPages || response.pagination.total_pages || 1;
+            const currentPageNum = response.pagination.currentPage || response.pagination.current_page || page;
+            const totalResults = response.pagination.total || response.pagination.totalResults || 0;
+            
+            let paginationHtml = `
+              <p>Page ${currentPageNum} of ${totalPages} (${totalResults} total results)</p>
+              <button onclick="goToPage(${currentPageNum - 1})" ${currentPageNum <= 1 ? 'disabled' : ''}>
+                Previous
+              </button>
+              <span>Page ${currentPageNum}</span>
+              <button onclick="goToPage(${currentPageNum + 1})" ${currentPageNum >= totalPages ? 'disabled' : ''}>
+                Next
+              </button>
+            `;
+            paginationDiv.innerHTML = paginationHtml;
+          }
+        } else {
+          resultsDiv.innerHTML = '<p>No results found.</p>';
+        }
+        
+      } catch (error) {
+        errorDiv.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+        resultsDiv.innerHTML = '';
+        console.error('Search error:', error);
+      }
+    };
+    
+    window.goToPage = function(page) {
+      if (page < 1) return;
+      document.getElementById('page-input').value = page;
+      performSearch();
+    };
+    
+    // Allow Enter key to trigger search
+    document.getElementById('search-input').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        performSearch();
+      }
+    });
+  </script>
+</body>
+</html>
