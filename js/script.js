@@ -1,6 +1,6 @@
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
 import { get, getDatabase, onValue, push, ref, remove, set, update } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-database.js";
-import { app } from "./auth.js";
+import { app,logout } from "./auth.js";
 
 // Initialize Realtime Database
 const db = getDatabase(app);
